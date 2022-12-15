@@ -115,10 +115,10 @@ function loadFile(fileSrc, delimiter) {
 }
 
 function parseLocalFile(fileSrc, delimiter) {
-    console.log(fileSrc, delimiter)
     if (delimiter === false) {
         delimiter = prompt("Please provide the delimiter of the file you supplied.");
         if (delimiter === null) return;
+        if (delimiter.charAt(0) === "\\") delimiter = eval("delimiter=\"" + delimiter + "\"");
     }
     var dataset = fileSrc.split("\n");
     var verified = [];
