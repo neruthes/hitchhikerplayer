@@ -178,8 +178,10 @@ document.getElementById("upload").onclick = () => {
 }
 document.getElementById("toggletable").onclick = () => {
     const table = document.getElementById("table");
-    const s = table.getAttribute('data-toggle-state');
-    table.setAttribute('data-toggle-state', ({ hidden: 'shown', shown: 'hidden' })[s]);
+    table.dataset.toggleState = ({
+        hidden: 'shown',
+        shown: 'hidden'
+    })[table.dataset.toggleState];
 }
 document.getElementById("fileselector").onchange = () => {
     var src = document.getElementById("fileselector").files;
