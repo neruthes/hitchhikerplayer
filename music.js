@@ -176,6 +176,11 @@ document.getElementById("remote").onclick = () => {
 document.getElementById("upload").onclick = () => {
     document.getElementById("fileselector").click();
 }
+document.getElementById("toggletable").onclick = () => {
+    const table = document.getElementById("table");
+    const s = table.getAttribute('data-toggle-state');
+    table.setAttribute('data-toggle-state', ({ hidden: 'shown', shown: 'hidden' })[s]);
+}
 document.getElementById("fileselector").onchange = () => {
     var src = document.getElementById("fileselector").files;
     if (src.length) {
