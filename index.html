@@ -6,52 +6,59 @@
     <title>Music Player</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsuites@4.17.5/dist/jsuites.basic.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jspreadsheet-ce@4.10.2/dist/jspreadsheet.css" />
+    <link rel="stylesheet" href="style.css" />
     <script src="https://cdn.jsdelivr.net/npm/jsuites@4.17.5/dist/jsuites.basic.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jspreadsheet-ce@4.10.2/dist/index.min.js"></script>
     <script defer="defer" src="music.js"></script>
 </head>
 
 <body>
-    <h1>Music Player for File List</h1>
-    <section>
-        <h2>Your music file list url</h2>
-        <div id="table"></div>
-        <div>
-            <button type="button" id="load">Load Above</button>
-            <button type="button" id="clear">Clear</button>
-            <button type="button" id="remote">Load URL</button>
-            <button type="button" id="upload">Load File</button>
-            <input type="file" id="fileselector" style="display: none" />
-        </div>
-    </section>
-    <section>
-        <h2>The player</h2>
-        <select id="playlist" size="2"></select>
-        <br />
-        <audio id="player" controls="controls">
-        </audio>
-        <br />
-        <div>
-            <button id="playpause">Play</button>
-            <label for="playprogress" id="currentpos">-:--</label>
-            <progress id="playprogress"></progress>
-            <span id="length">-:--</span>
-            <label for="loop">Loop</label>
-            <select id="loop">
-                <option>None</option>
-                <option>Single</option>
-                <option>All</option>
-            </select>
-            <div id="shuffleswitch">
-                <label for="playshuffle">Shuffle</label><input type="checkbox" name="playshuffle" id="playshuffle" />
+    <div id="grand-container">
+        <h1>Music Player for File List</h1>
+        <section>
+            <h2>Your music file list url</h2>
+            <div>
+                <button type="button" id="load">Load Below</button>
+                <button type="button" id="clear">Clear</button>
+                <button type="button" id="remote">Load URL</button>
+                <button type="button" id="upload">Load File</button>
+                <input type="file" id="fileselector" style="display: none" />
             </div>
-        </div>
-        <pre id="debug" style="display: none"></pre>
-    </section>
-    <footer>
-        <p>&copy;Copyright <i>S. aureus</i> 2022, Some rights reserved. All contents on this server released under
-            CC-BY-NC-SA 4.0 or any later version.</a></p>
-        <p>For more information, please check out <a href="about.html">here</a></p>
+            <div id="table"></div>
+        </section>
+        <section>
+            <h2>The player</h2>
+            <select id="playlist" size="2"></select>
+
+            <div>
+                <audio id="player" controls="controls"></audio>
+            </div>
+            <div>
+                <button id="playpause">Play</button>
+            </div>
+            <div>
+                <label for="playprogress" id="currentpos">-:--</label>
+                <progress id="playprogress"></progress>
+                <span id="length">-:--</span>
+            </div>
+            <div>
+                <label for="loop">Loop</label>
+                <select id="loop">
+                    <option>None</option>
+                    <option>Single</option>
+                    <option>All</option>
+                </select>
+                <label for="playshuffle">Shuffle</label>
+                <input type="checkbox" name="playshuffle" id="playshuffle" />
+            </div>
+            <pre id="debug" style="display: none"></pre>
+        </section>
+        <footer>
+            <p>&copy; Copyright <i>S. aureus</i> 2022, Some rights reserved. All contents on this server released under
+                CC-BY-NC-SA 4.0 or any later version.</a></p>
+            <p>For more information, please check out <a href="about.html">here</a></p>
+        </footer>
+    </div>
 </body>
 
 </html>
