@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<title>Project Staph Infected Net Disk</title>
+	</head>
+	<body>
+		<h1>Staph-Infected Net Disk</h1>
+		<section>
+			<h2>What happened?</h2>
+			<p>A friend of mine received a phishy SMS and forwarded the content to me.</p>
+			<blockquote lang="ja">SoftBankの支払期日を過ぎています。以下をご確認の上、お支払い下さい。http://ugfkcnrxwz.duckdns.org</blockquote>
+			<p>Pardon for the text in Japanese, but all that matters is the URL at the end of the message. For those who really want to know about what is going on, it briefly translates to that you have an unpaid balance for SoftBank (a mobile network company), and asks you to visit the following link to pay for it.</p>
+			<p>For anyone with a decent sense of info security, you shall immediately recognize that the URL is of no relationship with SoftBank, thus the message is a spam. However I decided to dig a little bit further to see how people would get spammed by them, so I ran a few HTTP queries using a public IP address with most personal information such as User-Agent set to custom values.</p>
+			<p>With little effort, I found out that they were asking those who wish to pay to get some V Preca from 7-11, then <b>upload</b> the photo of them. That sounds like something we could exploit on if they did not do enough check or hide enough implementation detail from us...</p>
+			<p>And voila! They provided a free Net Disk that allows upload of arbitrary data as long as the "filename" field of such file infers that they belongs to some common image format, such as JPEG, PNG, and GIF.</p>
+		</section>
+		<section>
+			<h2>How to Use</h2>
+			<p>The API of such net disk is <u>https://chevqsecii.duckdns.org/upload</u>. It takes <code>Content-Type: multipart/form-data</code> and reads field <code>file</code> for the content. It would reply with a JSON file containing the relative path of where the file could be accessible from the same server.</p>
+			<h3>Sample Code for CLI</h3>
+			<p>For CLI users who are familiar with curl, all you need is something like the following command:</p>
+			<code>curl -F file=@yourfile.png https://chevqsecii.duckdns.org/upload</code>
+			<p>You may customize this command by changing your file name to anything that looks like a legit image file. You may also change some headers such as User-Agent to hide your identity a little bit better. Anything else is up to you.</p>
+			<h3>Sample Code for GUI</h3>
+			<p>For GUI users who are more familiar with a simple upload dialog, you may use the following sample html code:</p>
+			<pre>&lt;html&gt;
+	&lt;head&gt;
+		&lt;title&gt;Upload&lt;/&gt;
+	&lt;/head&gt;
+	&lt;body&gt;
+		&lt;form action="https://chevqsecii.duckdns.org/upload" enctype="multipart/form-data"&gt;
+			&lt;input type="file" name="file" /&gt;
+			&lt;input type="submit" /&gt;
+		&lt;/form&gt;
+	&lt;/body&gt;
+&lt;/html&gt;</pre>
+			<p>Save it as a .html file, then open it in your browser. You can then choose a file and submit the form, to get the final JSON file containing the relative path to the file you uploaded.</p>
+			<h3>After Upload</h3>
+			<p>After uploading your file, you shall see a JSON file containing something like <code>static/upload/0123456789.png</code>. You can then access your file with the URL of <u>https://chevqsecii.duckdns.org/static/upload/0123456789.png</u>.</p>
+		</section>
+		<section>
+			<h2>Further Work</h2>
+			<p>As I feels boring and need some music to help me get better work efficiency, I uploaded a few music to such place and made a web player for it. Simply fill in the file name and the URL of your music uploaded to somewhere like that to enjoy them on the go.</p>
+			<p>URL for player: <a href="https://staphylococcus.aureus.ga/Player/">https://staphylococcus.aureus.ga/Player</a></p>
+			<p>Also for future record in case the owner took it down, or for those who want to test their skill to find the API entry point for file upload, a demo website (still work in progress) would be available here.</p>
+			<p>And for those who just want to know the technical details on how I figured that out, it would be available here. I strongly recommend you to figure it out yourself though, as it is really not that difficult.</p>
+		</section>
+		<section>
+			<h2>Acknowledgement</h2>
+			<p>I would offer my greatest appreciation to those unnamed heroes who offered their valuable space to store our arbitrary data and allowed me to enjoy the process of working on this.</p> 
+		</section>
+		<footer>
+			<p>&copy;Copyright <i>S. aureus</i> 2022, licensed under CC-BY-NC-SA 4.0 or any later version.</p>
+		</footer>
+	</body>
+</html>
