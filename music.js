@@ -104,21 +104,27 @@ function initTableConfig() {
 };
 
 function loadFile(fileSrc, delimiter) {
-    if (!delimiter) delimiter = "\t";
-    tableConfig = initTableConfig();
-    tableConfig["csv"] = fileSrc;
-    tableConfig["csvHeaders"] = false;
-    tableConfig["csvDelimiter"] = delimiter;
-    tableConfig["onload"] = createPlaylist;
-    document.getElementById("table").replaceChildren();
-    srcTable = jspreadsheet(document.getElementById("table"), tableConfig);
+    var xhr = new XMLHttpRequest();
+    xhr.delimiter = delimiter;
+    xhr.onreadystatechange = function () {
+        if (this.readyState === 4) {
+            if (this.status === 200) {
+                parseLocalFile(this.responseText, this.delimiter);
+            } else {
+                alert("Failed to load remote playlist.");
+            }
+        }
+    }
+    xhr.open("GET", fileSrc);
+    xhr.setRequestHeader("Accept", "text/tab-separated-values");
+    xhr.send();
 }
 
 function parseLocalFile(fileSrc, delimiter) {
     if (delimiter === false) {
         delimiter = prompt("Please provide the delimiter of the file you supplied.");
         if (delimiter === null) return;
-        if (delimiter.charAt(0) === "\\") delimiter = eval("delimiter=\"" + delimiter + "\"");
+        if (delimiter.charAt(0) === "\\" && delimiter.length === 2) eval("delimiter=\"" + delimiter + "\"");
     }
     var dataset = fileSrc.split("\n");
     var verified = [];
