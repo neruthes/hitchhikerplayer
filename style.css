@@ -26,6 +26,12 @@ section>* {
     max-height: 55vh;
     overflow: scroll;
 }
+#table[data-toggle-state="shown"] {
+    display: block;
+}
+#table[data-toggle-state="hidden"] {
+    display: none;
+}
 
 select#playlist {
     max-height: 33vh;
@@ -33,5 +39,5 @@ select#playlist {
 
 button {
     padding: 5px 12px;
-    min-width: 90px;
+    min-width: 110px;
 }
