@@ -1,29 +1,12 @@
+/*
+ * Author: S. aureus
+ * Released under GPLv3 or any later version.
+ */
+
+// Constants
 mimeType = { "audio/adpcm": ["adp"], "audio/amr": ["amr"], "audio/basic": ["au", "snd"], "audio/midi": ["mid", "midi", "kar", "rmi"], "audio/mobile-xmf": ["mxmf"], "audio/mp4": ["m4a", "mp4a"], "audio/mpeg": ["mpga", "mp2", "mp2a", "mp3", "m2a", "m3a"], "audio/ogg": ["oga", "ogg", "spx", "opus"], "audio/s3m": ["s3m"], "audio/silk": ["sil"], "audio/wav": ["wav"], "audio/webm": ["weba"], "audio/xm": ["xm"] }
 
-function askForListUrl() {
-    // Test:  https://gist.githubusercontent.com/neruthes/ebbbfdf3b5e15b875c0f93d51803e877/raw/7f93acc66c7ab2bb0f0fa0503519206df282b7d7/duckoss-list-genshinost.txt
-    const remoteListUrl = prompt('Paste the remote list URL here...');
-    console.log(`remoteListUrl: ${remoteListUrl}`);
-    let xhr = new XMLHttpRequest();
-    xhr.open('GET', remoteListUrl);
-    xhr.send();
-    xhr.onload = function (e) {
-        // console.log(e.target.responseText);
-        const txt = e.target.responseText;
-        console.log(txt);
-        const tabledata = txt.trim().split('\n').map((x, i) => {
-            return x.split('\t');
-        });
-        console.log(tabledata);
-        window.tableConfig.data = tabledata;
-        // Reload table now
-        document.getElementById('table').innerHTML = '';
-        reloadTable();
-        createPlaylist();
-    };
-    // jspreadsheet(document.getElementById('table'), { csv: remoteListUrl, csvDelimiter: '\t' });
-}
-
+// Functions
 function getMimeType(ext) {
     for (var item in mimeType) {
         if (mimeType[item].includes(ext)) return item;
@@ -78,20 +61,22 @@ function is_touch_enabled() {
 }
 
 function createPlaylist() {
-    var tmp = window.srcTable.getData();
+    var tmp = srcTable.getData();
     document.getElementById("playlist").replaceChildren();
     for (var item in tmp) {
-        var entry = document.createElement("option");
-        entry.innerText = tmp[item][0];
-        entry.value = tmp[item][1];
-        document.getElementById("playlist").appendChild(entry);
+        if (tmp[item][0] && tmp[item][1]) {
+            var entry = document.createElement("option");
+            entry.innerText = tmp[item][0];
+            entry.value = tmp[item][1];
+            document.getElementById("playlist").appendChild(entry);
+        }
     }
     document.getElementById("playlist").size = tmp.length;
     if (tmp.length < 2) {
         document.getElementById("playlist").size = 2;
     }
     document.getElementById("playlist").disabled = tmp.length < 2;
-    window.localStorage.setItem("songList", JSON.stringify(window.srcTable.getData()));
+    window.localStorage.setItem("songList", JSON.stringify(srcTable.getData()));
 }
 
 function updatePlayer() {
@@ -107,48 +92,102 @@ function playSelected() {
     document.getElementById("debug").innerText = "Song " + src.innerText + " loading...";
 }
 
+function initTableConfig() {
+    return {
+        "columns": [
+            { "title": "Song", "width": "400px" },
+            { "title": "URL", "width": "500px" }
+        ],
+        "allowInsertColumn": false,
+        "allowDeleteColumn": false
+    };
+};
+
+function loadFile(fileSrc, delimiter) {
+    var xhr = new XMLHttpRequest();
+    xhr.delimiter = delimiter;
+    xhr.onreadystatechange = function () {
+        if (this.readyState === 4) {
+            if (this.status === 200) {
+                parseLocalFile(this.responseText, this.delimiter);
+            } else {
+                alert("Failed to load remote playlist.");
+            }
+        }
+    }
+    xhr.open("GET", fileSrc);
+    xhr.setRequestHeader("Accept", "text/tab-separated-values");
+    xhr.send();
+}
+
+function parseLocalFile(fileSrc, delimiter) {
+    if (delimiter === false) {
+        delimiter = prompt("Please provide the delimiter of the file you supplied.");
+        if (delimiter === null) return;
+        if (delimiter.charAt(0) === "\\" && delimiter.length === 2) eval("delimiter=\"" + delimiter + "\"");
+    }
+    var dataset = fileSrc.split("\n");
+    var verified = [];
+    var tmp;
+    for (var i in dataset) {
+        tmp = dataset[i].split(delimiter);
+        if (tmp.length === 2) verified.push(tmp);
+    }
+    delete dataset;
+    if (!verified) { alert("Failed to load the file content."); return; }
+    tableConfig = initTableConfig();
+    tableConfig["data"] = verified;
+    document.getElementById("table").replaceChildren();
+    srcTable = jspreadsheet(document.getElementById("table"), tableConfig);
+    createPlaylist();
+}
+
+// Initialization
 if (is_touch_enabled()) {
     document.getElementById("playlist").onchange = playSelected;
 } else {
     document.getElementById("playlist").ondblclick = playSelected;
 }
 
-window.tableConfig = {
-    "columns": [
-        { "title": "Song", "width": "400px" },
-        { "title": "URL", "width": "500px" }
-    ],
-    "allowInsertColumn": false,
-    "allowDeleteColumn": false,
-};
+tableConfig = initTableConfig();
 
-if (window.localStorage.hasOwnProperty("songList")) {
-    window.tableConfig["data"] = JSON.parse(window.localStorage.getItem("songList"));
+if (!window.localStorage.hasOwnProperty("songList") && confirm("It seems that this is the first time you opened this page. Do you want to load a default playlist?")) {
+    loadFile("utaware.tsv", "\t");
 } else {
-    if (confirm("It seems that this is the first time you opened this page. Do you want to load a default playlist?")) {
-        window.tableConfig["csv"] = "utaware.tsv";
-        window.tableConfig["csvHeaders"] = false;
-        window.tableConfig["csvDelimiter"] = "\t";
-        window.tableConfig["onload"] = createPlaylist;
-    } else {
-        window.tableConfig["data"] = [[]];
+    tableConfig["data"] = window.localStorage.hasOwnProperty("songList") ? JSON.parse(window.localStorage.getItem("songList")) : [["", ""]];
+    srcTable = jspreadsheet(document.getElementById("table"), tableConfig);
+    createPlaylist();
+}
+
+// Event Listeners
+document.getElementById("load").onclick = createPlaylist;
+document.getElementById("clear").onclick = () => {
+    window.localStorage.clear();
+    document.getElementById("table").replaceChildren();
+    tableConfig = initTableConfig();
+    tableConfig["data"] = [["", ""]];
+    srcTable = jspreadsheet(document.getElementById("table"), tableConfig);
+    createPlaylist();
+};
+document.getElementById("remote").onclick = () => {
+    var src = prompt("Please provide the URL to the song list. Only TSV format is supported now.", "utaware.tsv");
+    if (src) loadFile(src, "\t");
+}
+document.getElementById("upload").onclick = () => {
+    document.getElementById("fileselector").click();
+}
+document.getElementById("fileselector").onchange = () => {
+    var src = document.getElementById("fileselector").files;
+    if (src.length) {
+        format = src[0].name.match(/\.\w+$/)[0];
+        delimiter = { ".csv": ",", ".tsv": "\t", ".psv": "|", ".txt": false };
+        if (delimiter.hasOwnProperty(format)) {
+            src[0].text().then((txt) => parseLocalFile(txt, delimiter[format]));
+        } else {
+            alert("Sorry but we can only load CSV, TSV, or PSV files right now.");
+        }
     }
 }
-
-
-function reloadTable() {
-    window.srcTable = jspreadsheet(document.getElementById("table"), window.tableConfig);
-}
-
-// Just want to reloadTable(), but calling the function here results an error elsewhere. Why?
-window.srcTable = jspreadsheet(document.getElementById("table"), window.tableConfig);
-
-
-
-if (!window.tableConfig.hasOwnProperty("onload")) createPlaylist();
-
-document.getElementById("load").onclick = createPlaylist;
-document.getElementById("clear").onclick = () => { window.localStorage.clear() };
 
 document.getElementById("loop").onchange = () => {
     if (document.getElementById("loop").value === "Single") {
@@ -180,4 +219,3 @@ document.getElementById("player").onerror = () => {
     document.getElementById("debug").innerText = "Error playing file.";
 }
 document.getElementById("player").onended = playNext;
-document.getElementById("askForListUrl").onclick = askForListUrl;
