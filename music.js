@@ -1,5 +1,12 @@
-mimeType = { "audio/adpcm": ["adp"], "audio/amr": ["amr"], "audio/basic": ["au", "snd"], "audio/midi": ["mid", "midi", "kar", "rmi"], "audio/mobile-xmf": ["mxmf"], "audio/mp4": ["m4a", "mp4a"], "audio/mpeg": ["mpga", "mp2", "mp2a", "mp3", "m2a", "m3a"], "audio/ogg": ["oga", "ogg", "spx", "opus"], "audio/s3m": ["s3m"], "audio/silk": ["sil"], "audio/wav": ["wav"], "audio/webm": ["weba"], "audio/xm": ["xm"] }
+/*
+ * Author: S. aureus
+ * Released under GPLv3 or any later version.
+ */
 
+// Constants
+final mimeType = { "audio/adpcm": ["adp"], "audio/amr": ["amr"], "audio/basic": ["au", "snd"], "audio/midi": ["mid", "midi", "kar", "rmi"], "audio/mobile-xmf": ["mxmf"], "audio/mp4": ["m4a", "mp4a"], "audio/mpeg": ["mpga", "mp2", "mp2a", "mp3", "m2a", "m3a"], "audio/ogg": ["oga", "ogg", "spx", "opus"], "audio/s3m": ["s3m"], "audio/silk": ["sil"], "audio/wav": ["wav"], "audio/webm": ["weba"], "audio/xm": ["xm"] }
+
+// Functions
 function getMimeType(ext) {
     for (var item in mimeType) {
         if (mimeType[item].includes(ext)) return item;
@@ -129,9 +136,9 @@ function parseLocalFile(fileSrc, delimiter) {
     createPlaylist();
 }
 
+// Initialization
 if (is_touch_enabled()) {
     document.getElementById("playlist").onchange = playSelected;
-    document.getElementById("player").removeAttribute("controls");
 } else {
     document.getElementById("playlist").ondblclick = playSelected;
 }
@@ -146,6 +153,7 @@ if (!window.localStorage.hasOwnProperty("songList") && confirm("It seems that th
     createPlaylist();
 }
 
+// Event Listeners
 document.getElementById("load").onclick = createPlaylist;
 document.getElementById("clear").onclick = () => {
     window.localStorage.clear();
@@ -157,7 +165,7 @@ document.getElementById("clear").onclick = () => {
 };
 document.getElementById("remote").onclick = () => {
     var src = prompt("Please provide the URL to the song list. Only TSV format is supported now.", "utaware.tsv");
-    if (src) loadFile(src);
+    if (src) loadFile(src, "\t");
 }
 document.getElementById("upload").onclick = () => {
     document.getElementById("fileselector").click();
@@ -166,7 +174,7 @@ document.getElementById("fileselector").onchange = () => {
     var src = document.getElementById("fileselector").files;
     if (src.length) {
         format = src[0].name.match(/\.\w+$/)[0];
-        delimiter = { ".csv": ",", ".tsv": "\t", ".psv": "|", "txt": false };
+        delimiter = { ".csv": ",", ".tsv": "\t", ".psv": "|", ".txt": false };
         if (delimiter.hasOwnProperty(format)) {
             src[0].text().then((txt) => parseLocalFile(txt, delimiter[format]));
         } else {
